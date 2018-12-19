@@ -1,4 +1,4 @@
-let perms = require('../features/permissions')
+const perms = require('../features/permissions')
 
 module.exports = {
   meta: {
@@ -17,7 +17,7 @@ module.exports = {
       return global.i18n.send('PERMISSIONS_OVERFLOW', msg.channel)
     }
     if (to === 0) to = null
-    let data = {
+    const data = {
       users: {},
       roles: {
         everyone: 0
@@ -36,7 +36,7 @@ module.exports = {
 }
 
 function mapMentions (string, reg = /<@!?([0-9]*)>/g) {
-  let res = []
+  const res = []
   let x
   while ((x = reg.exec(string)) !== null) {
     res.push(x[1])

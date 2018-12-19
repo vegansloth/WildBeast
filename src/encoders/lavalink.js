@@ -2,18 +2,27 @@ const superagent = require('superagent')
 const nodes = process.env.LAVA_NODES ? JSON.parse(process.env.LAVA_NODES) : [{
   host: 'localhost',
   port: 80,
-  restPort: 2333,
   region: 'us',
   password: 'password'
 }]
 const guildInfo = {}
+
+if (nodes[0].restPort) {
+  process.emitWarning('The "restPort" property on the LAVA_NODES environment variable has been merged into the "port" property.', {
+    type: 'LAVA_NODES[0].restPort',
+    code: 'DeprecationWarning',
+    detail: `Lavalink has moved to using the same port for both WebSocket and REST connections. The encoder has defaulted to using the value of the "port" property for both.
+    Remove the "restPort" property to remove this message. For more information, see https://github.com/TheSharks/WildBeast/blob/master/CHANGELOG.md#621`
+  })
+}
+
 module.exports = {
   nodes: nodes,
   guildInfo: guildInfo,
   init: () => {
     global.logger.debug('Using LavaLink encoder.')
     const { PlayerManager } = require('eris-lavalink')
-    let regions = {
+    const regions = {
       eu: ['eu', 'amsterdam', 'frankfurt', 'russia', 'hongkong', 'singapore', 'sydney'],
       us: ['us', 'brazil']
     }
@@ -37,12 +46,12 @@ module.exports = {
       throw new Error('Not a guild channel.')
     }
 
-    let player = global.bot.voiceConnections.get(channel.guild.id)
+    const player = global.bot.voiceConnections.get(channel.guild.id)
     if (player) {
       return (player)
     }
 
-    let options = {}
+    const options = {}
     if (channel.guild.region) {
       options.region = channel.guild.region
     }
@@ -50,8 +59,9 @@ module.exports = {
     return global.bot.joinVoiceChannel(channel.id)
   },
   resolveTracks: async (search) => {
+    let result
     try {
-      var result = await superagent.get(`http://${nodes[0].host}:${nodes[0].restPort || '2333'}/loadtracks?identifier=${search}`)
+      result = await superagent.get(`http://${nodes[0].host}:${nodes[0].port}/loadtracks?identifier=${search}`)
         .set('Authorization', nodes[0].password)
         .set('Accept', 'application/json')
     } catch (err) {
@@ -67,7 +77,7 @@ module.exports = {
   addTracks: async (msg, tracks) => {
     if (guildInfo[msg.channel.guild.id] !== undefined) {
       if (guildInfo[msg.channel.guild.id].tracks.length <= 0) {
-        let player = await global.bot.voiceConnections.get(msg.channel.guild.id)
+        const player = await global.bot.voiceConnections.get(msg.channel.guild.id)
         player.play(tracks[0].track)
       }
       for (let track of tracks) {
@@ -79,7 +89,7 @@ module.exports = {
   skip: async (msg) => {
     guildInfo[msg.channel.guild.id].tracks.shift()
     guildInfo[msg.channel.guild.id].skips = []
-    let player = await global.bot.voiceConnections.get(msg.channel.guild.id)
+    const player = await global.bot.voiceConnections.get(msg.channel.guild.id)
     player.play(guildInfo[msg.channel.guild.id].tracks[0].track)
     if (player.playing === false) player.setPause(false)
     if (guildInfo[msg.channel.guild.id].paused === true) guildInfo[msg.channel.guild.id].paused = false
@@ -117,10 +127,10 @@ module.exports = {
   },
   hhMMss: async (time) => {
     if (time || !isNaN(time)) {
-      let hours = (Math.floor(time / ((60 * 60)) % 24))
-      let minutes = (Math.floor(time / (60)) % 60)
-      let seconds = (Math.floor(time) % 60)
-      let parsedTime = []
+      const hours = (Math.floor(time / ((60 * 60)) % 24))
+      const minutes = (Math.floor(time / (60)) % 60)
+      const seconds = (Math.floor(time) % 60)
+      const parsedTime = []
       if (hours >= 1) parsedTime.push(hours)
       minutes >= 10 ? parsedTime.push(minutes) : parsedTime.push(`0${minutes}`)
       seconds >= 10 ? parsedTime.push(seconds) : parsedTime.push(`0${seconds}`)
@@ -150,8 +160,8 @@ module.exports = {
       }
       player.on('error', err => global.logger.error(err))
       player.on('stuck', msg => global.logger.error(msg))
-      player.on('disconnect', wat => {
-        if (wat !== undefined) global.logger.error(`lava disconnect: ${wat}`)
+      player.on('disconnect', reason => {
+        if (reason !== undefined) global.logger.error(`lava disconnect: ${reason}`)
       })
       player.on('end', async data => {
         if (data.reason && !['STOPPED', 'REPLACED'].includes(data.reason)) {
@@ -171,7 +181,7 @@ module.exports = {
           } else {
             if (!process.env.WILDBEAST_VOICE_PERSIST) {
               global.i18n.send('QUEUE_END', global.bot.guilds.get(data.guildId).channels.find(c => c.id === guildInfo[data.guildId].textChan))
-              let player = await global.bot.voiceConnections.get(data.guildId)
+              const player = await global.bot.voiceConnections.get(data.guildId)
               global.bot.leaveVoiceChannel(player.channelId)
               guildInfo[data.guildId] = undefined
             } else {

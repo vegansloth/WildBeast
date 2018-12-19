@@ -73,7 +73,7 @@ module.exports = {
       // send current settings
       const settings = await driver.getSettings(msg.channel.guild)
       if (Object.keys(settings).length === 0) return global.i18n.send('SETTINGS_NO_DATA', msg.channel)
-      let result = [
+      const result = [
         global.i18n.raw('SETTINGS_ALL_INTRO'),
         ''
       ]

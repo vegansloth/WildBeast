@@ -6,7 +6,7 @@ const misc = [
   'Like what we do? Consider supporting my developer at Patreon! <https://www.patreon.com/Dougley>' // escaping embed because we're not evil
 ]
 
-let result = {}
+const result = {}
 const aliases = new Map()
 
 for (const cmd in commands) {
@@ -26,7 +26,7 @@ async function helpingHand (user, context, cmd) {
   if (commands[cmd]) {
     const c = commands[cmd]
     const name = Object.getOwnPropertyNames(commands).find(f => commands[f] === c)
-    let result = [
+    const result = [
       `Command name: \`${name}\``,
       `Explanation: \`${c.meta.help}\``,
       '',

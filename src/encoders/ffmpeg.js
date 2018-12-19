@@ -12,7 +12,7 @@ module.exports = {
       throw new Error('Not a guild channel.')
     }
 
-    let player = global.bot.voiceConnections.get(channel.guild.id)
+    const player = global.bot.voiceConnections.get(channel.guild.id)
     if (player) {
       return (player)
     }
@@ -23,7 +23,7 @@ module.exports = {
     const getInfo = util.promisify(youtubedl.getInfo)
     let info = await getInfo(search.replace('%20', ' '), ['--skip-download', '-f', '[acodec*=opus]/bestaudio/best'])
     if (!Array.isArray(info)) info = [info]
-    let tracks = []
+    const tracks = []
     for (let t of info) {
       tracks.push({
         track: t.url,
@@ -86,10 +86,10 @@ module.exports = {
   },
   hhMMss: async (time) => {
     if (time || !isNaN(time)) {
-      let hours = (Math.floor(time / ((60 * 60)) % 24))
-      let minutes = (Math.floor(time / (60)) % 60)
-      let seconds = (Math.floor(time) % 60)
-      let parsedTime = []
+      const hours = (Math.floor(time / ((60 * 60)) % 24))
+      const minutes = (Math.floor(time / (60)) % 60)
+      const seconds = (Math.floor(time) % 60)
+      const parsedTime = []
       if (hours >= 1) parsedTime.push(hours)
       minutes >= 10 ? parsedTime.push(minutes) : parsedTime.push(`0${minutes}`)
       seconds >= 10 ? parsedTime.push(seconds) : parsedTime.push(`0${seconds}`)
@@ -106,7 +106,7 @@ module.exports = {
     guildInfo[msg.channel.guild.id] = undefined
   },
   createPlayer: async (msg, tracks) => {
-    let player = await msg.channel.guild.channels.find(c => c.id === msg.member.voiceState.channelID).join()
+    const player = await msg.channel.guild.channels.find(c => c.id === msg.member.voiceState.channelID).join()
     guildInfo[msg.channel.guild.id] = {
       tracks: [],
       volume: 100,
