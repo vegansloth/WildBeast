@@ -1,7 +1,7 @@
 # 6.0.0
 ## Release phase
 ### 6.2.1
-Recent changes to Lavaplayer no longer differentiate between the REST and WebSocket port. Starting with this version, if defined, the program will emit a deprecation warning instructing users to remove the `restPort` property since the `port` property is now used for both. The encoder will default to using the value of the `port` property regardless of aforementioned.
+Recent changes to Lavalink no longer differentiate between the REST and WebSocket port. Starting with this version, if defined, the program will emit a deprecation warning instructing users to remove the `restPort` property since the `port` property is now used for both. The encoder will default to using the value of the `port` property regardless of aforementioned.
 
 ### 6.2.0
 Internal changes, restructurations and improvements
